@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeTech CryoCapture™ ROI Savings Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-dark': '#4a49c5',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-track {
+            background: #e5e7eb;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .dark input[type="range"]::-webkit-slider-track {
+            background: #374151;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #5D5CDE;
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 50%;
+            margin-top: -0.375rem;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #4a49c5;
+            transform: scale(1.1);
+        }
+
+        input[type="range"]::-moz-range-track {
+            background: #e5e7eb;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .dark input[type="range"]::-moz-range-track {
+            background: #374151;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            background: #5D5CDE;
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 50%;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #4a49c5;
+            transform: scale(1.1);
+        }
+
+        /* Animation for results */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Custom number input styling */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl sm:text-4xl font-bold mb-2" style="color: #00B458;">DeTech CryoCapture™</h1>
+                <p class="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300">ROI Savings Calculator</p>
+                <div class="mt-4 max-w-3xl mx-auto px-4">
+                    <p class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">See what CryoCapture™ really saves you.</p>
+                    <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed text-justify">
+                        Our per-tank savings calculator reveals the hidden costs of outdated tank monitoring—missed vacuum degradation, manual checks, and unpredictable maintenance. CryoCapture™ eliminates those inefficiencies by detecting the slightest of vacuum leaks at inception, confirming lid integrity and precise liquid levels. Taking the guesswork out of validation both new and old tanks alike. Tanks over 5 years can now be fully validated. Every reading is a tank validation in itself. Plus, full service and replacement coverage are included for the life of your contract.
+                    </p>
+                    <p class="text-sm sm:text-base font-semibold mt-3" style="color: #00B458;">Run the numbers and see why CryoCapture™ pays for itself—fast.</p>
+                </div>
+            </div>
+
+            <!-- Calculator Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:p-8 mb-8">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">Input Parameters</h2>
+
+                <div class="space-y-6">
+                    <!-- Number of Tanks -->
+                    <div>
+                        <label class="flex justify-between items-center mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Total Number of Tanks</span>
+                            <span class="text-lg font-bold text-primary" id="tanksValue">50</span>
+                        </label>
+                        <input type="range" id="tanks" min="0" max="500" value="50" step="1" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>0</span>
+                            <span>500 tanks</span>
+                        </div>
+                    </div>
+
+                    <!-- Minutes per Tank -->
+                    <div>
+                        <label class="flex justify-between items-center mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Minutes to Check Each Tank (incl. documentation)</span>
+                            <span class="text-lg font-bold text-primary" id="minutesValue">10</span>
+                        </label>
+                        <input type="range" id="minutes" min="1" max="60" value="10" step="1" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>1 min</span>
+                            <span>60 min</span>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Wage -->
+                    <div>
+                        <label class="flex justify-between items-center mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Employee Hourly Wage</span>
+                            <span class="text-lg font-bold text-primary" id="wageValue">$25</span>
+                        </label>
+                        <input type="range" id="wage" min="0" max="75" value="25" step="1" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>$0/hr</span>
+                            <span>$75/hr</span>
+                        </div>
+                    </div>
+
+                    <!-- Days per Week -->
+                    <div>
+                        <label class="flex justify-between items-center mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Days per Week Tanks are Checked</span>
+                            <span class="text-lg font-bold text-primary" id="daysValue">5</span>
+                        </label>
+                        <input type="range" id="days" min="1" max="7" value="5" step="1" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>1 day</span>
+                            <span>7 days</span>
+                        </div>
+                    </div>
+
+                    <!-- Weeks per Year -->
+                    <div>
+                        <label class="flex justify-between items-center mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Weeks per Year</span>
+                            <span class="text-lg font-bold text-primary" id="weeksValue">52</span>
+                        </label>
+                        <input type="range" id="weeks" min="1" max="52" value="52" step="1" class="w-full">
+                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>1 week</span>
+                            <span>52 weeks</span>
+                        </div>
+                    </div>
+
+                    <!-- Annual Recordkeeping Cost -->
+                    <div>
+                        <label class="block mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Estimated Annual Recordkeeping Cost</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                            <input type="number" id="recordkeeping" min="0" step="100" value="2000"
+                                   class="w-full pl-8 pr-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Annual Alarm System Cost -->
+                    <div>
+                        <label class="block mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Estimated Annual Alarm System Cost</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                            <input type="number" id="alarm" min="0" step="100" value="1500"
+                                   class="w-full pl-8 pr-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Validation Cost per Tank -->
+                    <div>
+                        <label class="block mb-2">
+                            <span class="text-base font-medium text-gray-700 dark:text-gray-300">Estimated Cost to Validate Each Tank per Year</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                            <input type="number" id="validation" min="0" step="10" value="50"
+                                   class="w-full pl-8 pr-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="space-y-4">
+                <!-- Daily Savings -->
+                <div class="bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-lg shadow-lg p-6 result-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white text-opacity-90 text-sm font-medium uppercase tracking-wide">Daily Savings</p>
+                            <p class="text-white text-3xl sm:text-4xl font-bold mt-1" id="dailySavings">$0.00</p>
+                        </div>
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 text-white text-opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Weekly Savings -->
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-lg shadow-lg p-6 result-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white text-opacity-90 text-sm font-medium uppercase tracking-wide">Weekly Savings</p>
+                            <p class="text-white text-3xl sm:text-4xl font-bold mt-1" id="weeklySavings">$0.00</p>
+                        </div>
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 text-white text-opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Annual Savings -->
+                <div class="bg-gradient-to-r from-primary to-primary-dark rounded-lg shadow-lg p-6 result-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white text-opacity-90 text-sm font-medium uppercase tracking-wide">Annual Savings</p>
+                            <p class="text-white text-3xl sm:text-4xl font-bold mt-1" id="annualSavings">$0.00</p>
+                        </div>
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 text-white text-opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Cost Breakdown</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-gray-600 dark:text-gray-400">Annual Labor Cost</span>
+                            <span class="font-semibold text-gray-900 dark:text-gray-100" id="laborCost">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-gray-600 dark:text-gray-400">Annual Recordkeeping Cost</span>
+                            <span class="font-semibold text-gray-900 dark:text-gray-100" id="recordkeepingDisplay">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-gray-600 dark:text-gray-400">Annual Alarm System Cost</span>
+                            <span class="font-semibold text-gray-900 dark:text-gray-100" id="alarmDisplay">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                            <span class="text-gray-600 dark:text-gray-400">Total Validation Cost</span>
+                            <span class="font-semibold text-gray-900 dark:text-gray-100" id="validationDisplay">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 mt-2 bg-gray-50 dark:bg-gray-700 rounded-lg px-3">
+                            <span class="text-gray-800 dark:text-gray-200 font-semibold">Total Annual Current Cost</span>
+                            <span class="font-bold text-lg text-red-600 dark:text-red-400" id="totalCost">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                <p>DeTech CryoCapture™ - Automated Liquid Nitrogen Tank Monitoring Solution</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Get all input elements
+        const tanksInput = document.getElementById('tanks');
+        const minutesInput = document.getElementById('minutes');
+        const wageInput = document.getElementById('wage');
+        const daysInput = document.getElementById('days');
+        const weeksInput = document.getElementById('weeks');
+        const recordkeepingInput = document.getElementById('recordkeeping');
+        const alarmInput = document.getElementById('alarm');
+        const validationInput = document.getElementById('validation');
+
+        // Get all display elements
+        const tanksValue = document.getElementById('tanksValue');
+        const minutesValue = document.getElementById('minutesValue');
+        const wageValue = document.getElementById('wageValue');
+        const daysValue = document.getElementById('daysValue');
+        const weeksValue = document.getElementById('weeksValue');
+
+        // Get result elements
+        const dailySavingsEl = document.getElementById('dailySavings');
+        const weeklySavingsEl = document.getElementById('weeklySavings');
+        const annualSavingsEl = document.getElementById('annualSavings');
+        const laborCostEl = document.getElementById('laborCost');
+        const recordkeepingDisplayEl = document.getElementById('recordkeepingDisplay');
+        const alarmDisplayEl = document.getElementById('alarmDisplay');
+        const validationDisplayEl = document.getElementById('validationDisplay');
+        const totalCostEl = document.getElementById('totalCost');
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Calculate savings
+        function calculateSavings() {
+            const tanks = parseInt(tanksInput.value);
+            const minutesPerTank = parseInt(minutesInput.value);
+            const hourlyWage = parseFloat(wageInput.value);
+            const daysPerWeek = parseInt(daysInput.value);
+            const weeksPerYear = parseInt(weeksInput.value);
+            const recordkeepingCost = parseFloat(recordkeepingInput.value) || 0;
+            const alarmCost = parseFloat(alarmInput.value) || 0;
+            const validationCostPerTank = parseFloat(validationInput.value) || 0;
+
+            // Calculate daily labor cost
+            const hoursPerDay = (tanks * minutesPerTank) / 60;
+            const dailyLaborCost = hoursPerDay * hourlyWage;
+
+            // Calculate annual costs
+            const annualLaborCost = dailyLaborCost * daysPerWeek * weeksPerYear;
+            const totalValidationCost = validationCostPerTank * tanks;
+            const totalAnnualCost = annualLaborCost + recordkeepingCost + alarmCost + totalValidationCost;
+
+            // Calculate savings (assuming CryoCapture eliminates these costs)
+            const dailySavings = dailyLaborCost;
+            const weeklySavings = dailyLaborCost * daysPerWeek;
+            const annualSavings = totalAnnualCost;
+
+            // Update displays
+            dailySavingsEl.textContent = formatCurrency(dailySavings);
+            weeklySavingsEl.textContent = formatCurrency(weeklySavings);
+            annualSavingsEl.textContent = formatCurrency(annualSavings);
+            laborCostEl.textContent = formatCurrency(annualLaborCost);
+            recordkeepingDisplayEl.textContent = formatCurrency(recordkeepingCost);
+            alarmDisplayEl.textContent = formatCurrency(alarmCost);
+            validationDisplayEl.textContent = formatCurrency(totalValidationCost);
+            totalCostEl.textContent = formatCurrency(totalAnnualCost);
+        }
+
+        // Update slider value displays
+        tanksInput.addEventListener('input', (e) => {
+            tanksValue.textContent = e.target.value;
+            calculateSavings();
+        });
+
+        minutesInput.addEventListener('input', (e) => {
+            minutesValue.textContent = e.target.value;
+            calculateSavings();
+        });
+
+        wageInput.addEventListener('input', (e) => {
+            wageValue.textContent = '$' + e.target.value;
+            calculateSavings();
+        });
+
+        daysInput.addEventListener('input', (e) => {
+            daysValue.textContent = e.target.value;
+            calculateSavings();
+        });
+
+        weeksInput.addEventListener('input', (e) => {
+            weeksValue.textContent = e.target.value;
+            calculateSavings();
+        });
+
+        // Update number inputs
+        recordkeepingInput.addEventListener('input', calculateSavings);
+        alarmInput.addEventListener('input', calculateSavings);
+        validationInput.addEventListener('input', calculateSavings);
+
+        // Initial calculation
+        calculateSavings();
+    </script>
+</body>
+</html>
